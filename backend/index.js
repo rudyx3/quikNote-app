@@ -9,6 +9,7 @@ import {
   getNoteByTitle,
   getUserNotes,
 } from "./controllers/notesLogic.js";
+import forgotPass from "./controllers/forgotPass.js";
 
 const app = express();
 
@@ -34,6 +35,9 @@ app.delete("/notes/:id", verifyToken, deleteNote);
 
 //getting user info
 app.get("/get-user", verifyToken, getUserData);
+
+//password Reset route
+app.post("/forgot-pass", forgotPass);
 
 const PORT = 4000;
 
