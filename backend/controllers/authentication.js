@@ -1,5 +1,5 @@
 import pool from "../config.js";
-import bcrypt from "bcryptjs";
+import bcrypt from 'bcrypt'
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();

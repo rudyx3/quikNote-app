@@ -4,14 +4,16 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import pool from "../config.js";
+import dotenv from 'dotenv';
+dotenv.config()
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const transporter = nodemailer.createTransport({
   service: "gmail", // or your preferred email service
   auth: {
-    user: "rudybbx3@gmail.com",
-    pass: "hvjk ylji lvmm ljrw",
+    user: process.env.PASS_EMAIL,
+    pass: process.env.PASS_PASS,
   },
 });
 
@@ -30,7 +32,7 @@ export const sendEmail = (userEmail) => {
     if (error) {
       console.error("Error sending the mail", error);
     } else {
-      console.log("Email Sent", info.response);
+      console.log("Email Sent");
     }
   });
 };
