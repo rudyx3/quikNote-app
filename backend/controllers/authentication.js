@@ -1,6 +1,8 @@
 import pool from "../config.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Signup authentication
 export const signup = async (req, res) => {
@@ -61,7 +63,7 @@ export const login = async (req, res) => {
         id: user.id,
         email: user.email,
       },
-      "SECRET111",
+      process.env.SECRET,
       { expiresIn: "30m" }
     );
 

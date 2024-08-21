@@ -1,3 +1,4 @@
+
 import connectDb from "../config.js";
 
 //Contains schema for the user-table
@@ -15,7 +16,7 @@ async function createTable() {
     await connectDb.query(ctQ);
     console.log("User table created successfully");
   } catch (err) {
-    console.log(err, "Error creating tables");
+    console.error(err.message, "Error creating tables");
   }
 }
 

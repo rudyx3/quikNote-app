@@ -1,5 +1,8 @@
 //the file uses JWT tokens ton authenticate a user for further use
 import jwt from "jsonwebtoken";
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -11,7 +14,7 @@ export const verifyToken = (req, res, next) => {
 
   //verify the user using the secret key
   try {
-    const decoded = jwt.verify(token, "SECRET111");
+    const decoded = jwt.verify(token, process.env.SECRET);
     req.user = decoded;
     next();
   } catch (error) {
