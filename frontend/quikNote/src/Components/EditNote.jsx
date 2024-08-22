@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import axiosInstance from "../utils/API";
 
-export const EditNote = ({ noteData, handleClose, type, handleAddNotes }) => {
+export const EditNote = ({ noteData, handleClose, type, handleAddNotes, isLoad, setIsLoad }) => {
   const [title, setTitle] = useState(noteData?.note_title || "");
   const [content, setContent] = useState(noteData?.note_content || "");
 
@@ -10,6 +10,8 @@ export const EditNote = ({ noteData, handleClose, type, handleAddNotes }) => {
 
   const editNote = async () => {
     //Handling API request to edit the note
+    setIsLoad(!isLoad)
+
     try {
       const response = await axiosInstance.put(`/notes/${noteData.note_id}`, {
         title: title,
@@ -18,6 +20,7 @@ export const EditNote = ({ noteData, handleClose, type, handleAddNotes }) => {
 
       if (response.data && response.data.message) {
         handleAddNotes();
+        setIsLoad(false)
         handleClose();
       }
     } catch (error) {
@@ -32,6 +35,9 @@ export const EditNote = ({ noteData, handleClose, type, handleAddNotes }) => {
   };
 
   const addNote = async () => {
+    
+    setIsLoad(!isLoad)
+    
     try {
       const response = await axiosInstance.post("/add-note", {
         title: title,
@@ -41,6 +47,7 @@ export const EditNote = ({ noteData, handleClose, type, handleAddNotes }) => {
 
       if (response.data && response.data.note) {
         handleAddNotes();
+        setIsLoad(false)
         handleClose();
       }
     } catch (error) {

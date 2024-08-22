@@ -5,11 +5,13 @@ import MyIcon from "../Components/Icons";
 import { validateEmail } from "../utils/emailValidate";
 import axiosInstance from "../utils/API";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export const ForgotPass = () => {
   //react controlled elements
   const [email, setEmail] = useState("");
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -23,6 +25,8 @@ export const ForgotPass = () => {
     setError("");
     //POST API for Password Reset
 
+    setIsLoading(true);
+
     try {
       // Send a POST request to the /forgot-pass endpoint
 
@@ -31,6 +35,7 @@ export const ForgotPass = () => {
       });
 
       if (response.data && response.data.message) {
+        setIsLoading(false)
         setError(response.data.message);
       }
     } catch (error) {
@@ -40,6 +45,7 @@ export const ForgotPass = () => {
         error.response.data &&
         error.response.data.message
       ) {
+        setIsLoading(false);
         setError(error.response.data.message);
       } else {
         setError("An unexpected error occurred. Please try again.");
@@ -56,8 +62,8 @@ export const ForgotPass = () => {
           QuikNote
         </h1>
       </div>
-      <div className="flex flex-col items-center justify-center w-full lg:w-1/2">
-        <div className="px-10 py-10 bg-white border-2 border-gray-200 rounded-3xl shadow-md">
+      <div className="flex flex-col items-center justify-center w-full lg:w-1/2 px-4">
+        <div className="w-full max-w-[400px] lg:max-w-[360px] px-8 py-8 bg-white border-2 border-gray-200 rounded-3xl shadow-md">
           <h3 className="text-lg font-semibold text-custom-green font-playfair">
             Continue to{" "}
             <span className="text-lg font-semibold text-custom-orange font-playfair">
@@ -72,7 +78,7 @@ export const ForgotPass = () => {
           </h1>
           <form onSubmit={handlePasswordReset}>
             <div className="mt-7">
-              <div className="min-h-[70px] min-w-[300px] ">
+              <div className="min-h-[70px]">
                 <input
                   className="w-full p-2 mt-1 bg-transparent border-2 rounded-md border-custom-green"
                   placeholder="Email"
@@ -98,7 +104,11 @@ export const ForgotPass = () => {
                 type="submit"
                 className="hover:scale-[1.01] ease-in-out text-lg font-medium text-white rounded-md active:scale-[.98] active:duration-75 transition-all py-2 bg-custom-green"
               >
-                Reset Password
+                {isLoading ? (
+                  <CircularProgress sx={{ color: "#D17B17" }} size={30} />
+                ) : (
+                  "Reset Password"
+                )}
               </button>
             </div>
           </form>

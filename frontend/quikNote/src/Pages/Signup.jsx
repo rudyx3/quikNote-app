@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import MyIcon from "../Components/Icons";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import notebookImage from "../assets/Images/notebook.png";
 import Passwordinput from "../Components/Passwordinput";
 import { validateEmail } from "../utils/emailValidate";
 import axiosInstance from "../utils/API";
+import { CircularProgress } from "@mui/material";
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState(null);
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -33,7 +35,8 @@ const Signup = () => {
 
     setError("");
 
-    //API request for SignUp
+    // API request for SignUp
+    setIsLoading(true);
 
     try {
       const response = await axiosInstance.post("/signup", {
@@ -43,7 +46,7 @@ const Signup = () => {
       });
 
       if (response.data) {
-        navigate('/')
+        navigate("/");
       }
     } catch (error) {
       if (
@@ -53,11 +56,12 @@ const Signup = () => {
       ) {
         setError(error.response.data.message);
       } else {
-        setError("An Unexpected error occured. Please try again");
+        setError("An unexpected error occurred. Please try again.");
       }
-      console.error("Login error:", error);
     }
+    setIsLoading(false);
   };
+
   return (
     <div className="flex w-full h-screen">
       <div className="flex items-center px-1 py-3 absolute">
@@ -66,23 +70,23 @@ const Signup = () => {
           QuikNote
         </h1>
       </div>
-      <div className="flex flex-col items-center justify-center w-full lg:w-1/2">
-        <div className="px-10 py-10 bg-white border-2 border-gray-200 rounded-3xl shadow-md">
+      <div className="flex flex-col items-center justify-center w-full lg:w-1/2 px-4">
+        <div className="w-full max-w-[400px] lg:max-w-[360px] px-8 py-8 bg-white border-2 border-gray-200 rounded-3xl shadow-md">
           <h3 className="text-lg font-semibold text-custom-green font-playfair">
             Welcome to{" "}
             <span className="text-lg font-semibold text-custom-orange font-playfair">
               QuikNote
             </span>
-          </h3>{" "}
+          </h3>
           <h3 className="text-lg font-semibold text-custom-green font-playfair">
-            Lets Get Started,
+            Let's Get Started,
           </h3>
           <h1 className="mt-5 text-5xl font-semibold font-playfair text-custom-green">
             SignUp
           </h1>
           <form onSubmit={handleSignup}>
             <div className="mt-7">
-              <div className="min-h-[60px] min-w-[300px] ">
+              <div className="min-h-[70px]">
                 <input
                   className="w-full p-2 mt-1 bg-transparent border-2 rounded-md border-custom-green"
                   placeholder="Name"
@@ -90,7 +94,7 @@ const Signup = () => {
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
-              <div className="min-h-[60px] min-w-[300px] ">
+              <div className="min-h-[70px]">
                 <input
                   className="w-full p-2 mt-1 bg-transparent border-2 rounded-md border-custom-green"
                   placeholder="Email"
@@ -107,12 +111,19 @@ const Signup = () => {
               <p className="text-xs font-semibold text-red-500 pt-2">{error}</p>
             )}
             <div className="flex flex-col mt-4 text-center">
-              <button className="hover:scale-[1.01] ease-in-out text-lg font-medium text-white rounded-md active:scale-[.98] active:duration-75 transition-all py-2 bg-custom-green">
-                SignUp
+              <button
+                className="hover:scale-[1.01] ease-in-out text-lg font-medium text-white rounded-md active:scale-[.98] active:duration-75 transition-all py-2 bg-custom-green"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <CircularProgress sx={{ color: "#D17B17" }} size={30} />
+                ) : (
+                  "SignUp"
+                )}
               </button>
             </div>
             <div className="mt-5 text-center">
-              <button className=" text-custom-green">
+              <button className="text-custom-green">
                 Already have an account?{" "}
                 <Link to="/" className="underline text-custom-orange">
                   Login
@@ -132,8 +143,9 @@ const Signup = () => {
         </div>
       </div>
       <div className="absolute bottom-4 left-4 text-sm text-custom-green">
-        Copyright © 2024 <span className="text-custom-orange">QuikNote</span>{" "}
-        All rights reserved.
+        Copyright © 2024{" "}
+        <span className="text-custom-orange">QuikNote</span> All rights
+        reserved.
       </div>
     </div>
   );

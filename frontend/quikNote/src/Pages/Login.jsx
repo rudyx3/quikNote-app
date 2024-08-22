@@ -5,11 +5,13 @@ import MyIcon from "../Components/Icons";
 import Passwordinput from "../Components/Passwordinput";
 import { validateEmail } from "../utils/emailValidate";
 import axiosInstance from "../utils/API";
+import CircularProgress from "@mui/material/CircularProgress";
+
 const Login = () => {
-  //react controlled elements
   const [email, setEmail] = useState("");
   const [error, setError] = useState(null);
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -28,38 +30,28 @@ const Login = () => {
     setError("");
 
     //POST API for LOGIN
+    setIsLoading(true);
 
     try {
-      // Send a POST request to the /login endpoint
       const response = await axiosInstance.post("/login", {
         email: email,
         password: password,
       });
 
-      // Check and save the access token
       if (response.data && response.data.accessToken) {
-        //saving the token to the localStorage
         localStorage.setItem("token", response.data.accessToken);
-        console.log("Token saved successfully");
-
         navigate("/notes");
-        console.log("User Logged in");
       } else {
         setError("Login failed: No access token received.");
       }
     } catch (error) {
-      // Handle login errors
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
+      if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
       } else {
         setError("An unexpected error occurred. Please try again.");
       }
-      console.error("Login error:", error);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -70,20 +62,20 @@ const Login = () => {
           QuikNote
         </h1>
       </div>
-      <div className="flex flex-col items-center justify-center w-full lg:w-1/2">
-        <div className="px-10 py-10 bg-white border-2 border-gray-200 rounded-3xl shadow-md">
+      <div className="flex flex-col items-center justify-center w-full lg:w-1/2 px-4">
+        <div className="w-full max-w-[400px] lg:max-w-[360px] px-8 py-8 bg-white border-2 border-gray-200 rounded-3xl shadow-md">
           <h3 className="text-lg font-semibold text-custom-green font-playfair">
             Welcome Back to{" "}
             <span className="text-lg font-semibold text-custom-orange font-playfair">
               QuikNote
             </span>
-          </h3>{" "}
+          </h3>
           <h1 className="mt-8 text-5xl font-semibold font-playfair text-custom-green">
             Login
           </h1>
           <form onSubmit={handleLogin}>
             <div className="mt-7">
-              <div className="min-h-[70px] min-w-[300px] ">
+              <div className="min-h-[70px]">
                 <input
                   className="w-full p-2 mt-1 bg-transparent border-2 rounded-md border-custom-green"
                   placeholder="Email"
@@ -96,7 +88,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <div className="flex items-center justify-between ">
+            <div className="flex items-center justify-between">
               <div>
                 <input
                   type="checkbox"
@@ -111,9 +103,7 @@ const Login = () => {
                 </label>
               </div>
               <button className="text-base font-medium text-custom-green">
-                <Link to="/forgotpass">
-                  Forgot Password?
-                </Link>
+                <Link to="/forgotpass">Forgot Password?</Link>
               </button>
             </div>
             {error && (
@@ -123,13 +113,18 @@ const Login = () => {
               <button
                 type="submit"
                 className="hover:scale-[1.01] ease-in-out text-lg font-medium text-white rounded-md active:scale-[.98] active:duration-75 transition-all py-2 bg-custom-green"
+                disabled={isLoading}
               >
-                Login
+                {isLoading ? (
+                  <CircularProgress sx={{ color: "#D17B17" }} size={30} />
+                ) : (
+                  "Login"
+                )}
               </button>
             </div>
           </form>
-          <div className="mt-5">
-            <button className=" text-custom-green">
+          <div className="mt-5 text-center">
+            <button className="text-custom-green">
               Don't have an account?{" "}
               <Link to="/signup" className="underline text-custom-orange">
                 Get Started
@@ -148,8 +143,9 @@ const Login = () => {
         </div>
       </div>
       <div className="absolute bottom-4 left-4 text-sm text-custom-green">
-        Copyright © 2024 <span className="text-custom-orange">QuikNote</span>{" "}
-        All rights reserved.
+        Copyright © 2024{" "}
+        <span className="text-custom-orange">QuikNote</span> All rights
+        reserved.
       </div>
     </div>
   );

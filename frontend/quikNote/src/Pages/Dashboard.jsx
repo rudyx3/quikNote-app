@@ -7,6 +7,7 @@ import Modal from "react-modal";
 import axiosInstance from "../utils/API";
 import { useNavigate } from "react-router-dom";
 import { EmptyCard } from "../Components/EmptyCard";
+import { LinearProgress } from "@mui/material";
 
 const Dashboard = () => {
   const [isEdit, setIsEdit] = useState({
@@ -28,9 +29,11 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [isSearch, setIsSearch] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  //this is to fetch the user Data
   const userData = async () => {
     try {
       const response = await axiosInstance.get("/get-user");
@@ -45,25 +48,23 @@ const Dashboard = () => {
     }
   };
 
-  //this is to get the notes for a user
   const userNotesData = async () => {
     try {
       const response = await axiosInstance.get("/all-notes");
-
       if (response.data && response.data.notes) {
         setUserNotes(response.data.notes);
       }
     } catch (error) {
-      console.log("An Unexpected Error Occured");
+      console.log("An Unexpected Error Occurred");
     }
   };
 
-  //this is to delete a note
   const handleDeleteNote = async (note) => {
+    setIsDeleteLoading(!isDeleteLoading);
     try {
       const response = await axiosInstance.delete(`/notes/${note.note_id}`);
-
       if (response.data && response.data.message) {
+        setIsDeleteLoading(false);
         userNotesData();
       }
     } catch (error) {
@@ -77,7 +78,6 @@ const Dashboard = () => {
     }
   };
 
-  //updating a note
   const handleEditNote = async (note) => {
     setIsEdit({
       isShown: true,
@@ -86,7 +86,6 @@ const Dashboard = () => {
     });
   };
 
-  //searching a note
   const handleSearchNote = async (searchQuery) => {
     try {
       const response = await axiosInstance.get("/notes/search", {
@@ -114,37 +113,42 @@ const Dashboard = () => {
         setSearchResults={setSearchResults}
       />
       <div className="container mx-auto px-4">
-        {userNotes.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-9">
-          {(isSearch ? searchResults : userNotes).map((note, index) => (
-            <Note
-              key={note.note_id}
-              title={note.note_title}
-              content={note.note_content}
-              date={new Date(note.created_on).toLocaleString()}
-              handleEdit={() => {
-                handleEditNote(note);
-              }}
-              handleDelete={() => {
-                handleDeleteNote(note);
-              }}
-            />
-          ))}
-        </div> : <EmptyCard message= {"You have no notes, Get started by clicking the pen icon to note down memories with QuikNote!"}/>}
-      </div>
-          <div className="flex items-center justify-center absolute right-10 bottom-10">
-            <button
-              className="w-16 h-16 flex items-center justify-center rounded-full bg-custom-green hover:scale-110 transition-all ease-in-out duration-200"
-              onClick={() => {
-                setIsEdit({
-                  isShown: true,
-                  type: "add",
-                  data: null,
-                });
-              }}
-            >
-              <FaPen className=" text-white" size={25} />
-            </button>
+        {userNotes.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-9">
+            {(isSearch ? searchResults : userNotes).map((note) => (
+              <Note
+                key={note.note_id}
+                title={note.note_title}
+                content={note.note_content}
+                date={new Date(note.created_on).toLocaleString()}
+                handleEdit={() => handleEditNote(note)}
+                handleDelete={() => handleDeleteNote(note)}
+                isDeleteLoad={isDeleteLoading}
+              />
+            ))}
           </div>
+        ) : (
+          <EmptyCard
+            message={
+              "You have no notes. Get started by clicking the pen icon to note down memories with QuikNote!"
+            }
+          />
+        )}
+      </div>
+      <div className="fixed right-6 bottom-6 sm:right-10 sm:bottom-10">
+        <button
+          className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-custom-green hover:scale-110 transition-all ease-in-out duration-200"
+          onClick={() => {
+            setIsEdit({
+              isShown: true,
+              type: "add",
+              data: null,
+            });
+          }}
+        >
+          <FaPen className="text-white" size={20} sm:size={25} />
+        </button>
+      </div>
       {error && <p className="text-md text-red-500 font-semibold">{error}</p>}
 
       <Modal
@@ -156,14 +160,28 @@ const Dashboard = () => {
           },
         }}
         contentLabel=""
-        className="w-[40%] max-h-3/4 bg-[#cdd2c8] rounded-xl mx-auto mt-14 p-6 "
+        className="w-11/12 sm:w-[60%] md:w-[50%] lg:w-[40%] max-h-[75%] bg-[#cdd2c8] rounded-xl mx-auto mt-10 sm:mt-14"
       >
-        <EditNote
-          noteData={isEdit.data}
-          handleClose={handleClose}
-          type={isEdit.type}
-          handleAddNotes={userNotesData}
-        />
+        {isLoading && (
+          <LinearProgress
+            sx={{
+              bgcolor: "#cdd2c8",
+              "& .MuiLinearProgress-bar": {
+                bgcolor: "#D17B17",
+              },
+            }}
+          />
+        )}
+        <div className="p-4 sm:p-6">
+          <EditNote
+            noteData={isEdit.data}
+            handleClose={handleClose}
+            type={isEdit.type}
+            handleAddNotes={userNotesData}
+            isLoad={isLoading}
+            setIsLoad={setIsLoading}
+          />
+        </div>
       </Modal>
     </>
   );
